@@ -1,10 +1,21 @@
 {-# LANGUAGE UndecidableInstances    #-}
 {-# LANGUAGE UndecidableSuperClasses #-}
+{-# LANGUAGE CPP #-}
 module Database.Schema.Rec where
 
 import Data.Kind
+
+#if MIN_VERSION_singletons(3,0,0)
+import Prelude.Singletons as SP
+import Data.List.Singletons as SP
+import Data.String.Singletons as SP
+import Data.Singletons.ShowSing as SP
+import Data.Singletons.Base.TH as SP
+import Data.Singletons.TH
+#else
 import Data.Singletons.Prelude as SP hiding ((:.))
 import Data.Singletons.TH hiding ((:.))
+#endif
 import Data.Text (Text)
 import Database.PostgreSQL.Simple.Types as PG
 import Database.Schema.Def
@@ -29,7 +40,7 @@ promote [d|
     where
       find1 []     = find2 rs2
       find1 (x:xs) = if fieldName x == n then f1 n else find1 xs
-      find2 []     = error "riFieldType: No field found"
+      find2 []     = undefined
       find2 (x:xs) = if fieldName x == n then f2 n else find2 xs
 
   orField :: Eq s => [FieldInfo' s] -> [FieldInfo' s] -> s -> Bool

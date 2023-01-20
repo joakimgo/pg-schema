@@ -1,15 +1,26 @@
 {-# LANGUAGE NoDuplicateRecordFields #-}
 {-# LANGUAGE UndecidableInstances    #-}
 {-# LANGUAGE UndecidableSuperClasses #-}
+{-# LANGUAGE CPP #-}
 module Database.Schema.Def where
 
 import Data.Kind
 import Data.List as L
 import Data.Map as M
 import Data.Semigroup ((<>))
+#if MIN_VERSION_singletons(3,0,0)
+import Prelude.Singletons as SP
+import Data.List.Singletons as SP
+import Data.String.Singletons as SP
+import Data.Singletons.ShowSing as SP
+import Data.Singletons.Base.TH as SP
+import Data.Singletons.TH
+#else
 import Data.Singletons.Prelude as SP
 import Data.Singletons.Prelude.List as SP
 import Data.Singletons.TH
+#endif
+
 import Data.Text as T
 import PgSchema.Util
 import Util.ShowType
@@ -83,7 +94,7 @@ promote [d|
     where
       find1 []         = find2 tos
       find1 ((a,b):xs) = if nnsName a == s then rdTo b else find1 xs
-      find2 []         = error "No relation by name"
+      find2 []         = undefined
       find2 ((a,b):xs) = if nnsName a == s then rdFrom b else find2 xs
 
   getFldKind

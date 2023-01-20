@@ -1,11 +1,23 @@
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE CPP #-}
 module Database.PostgreSQL.PgTagged where
 
 import Data.Aeson
+import qualified Data.Aeson.Key as AK
 import Data.Coerce
 import Data.Hashable
 import Data.Kind
+import qualified Data.Text as T
+#if MIN_VERSION_singletons(3,0,0)
+import Prelude.Singletons as SP
+import Data.List.Singletons as SP
+import Data.String.Singletons as SP
+import Data.Singletons.ShowSing as SP
+import Data.Singletons.Base.TH as SP
+import Data.Singletons.TH
+#else
 import Data.Singletons.Prelude
+#endif
 import Data.Tagged
 import Database.PostgreSQL.Simple as PG
 import Database.PostgreSQL.Simple.FromField as PG
@@ -40,10 +52,10 @@ rePgTag = coerce
 
 instance (ToStar a, FromJSON b) => FromJSON (PgTagged (a::Symbol) b) where
   parseJSON =
-    withObject "PgTagged " $ \v -> pgTag <$> v .: demote @a
+    withObject "PgTagged " $ \v -> pgTag <$> v .: AK.fromText (demote @a :: T.Text)
 
 instance (ToStar a, ToJSON b) => ToJSON (PgTagged (a::Symbol) b) where
-  toJSON v = object [demote @a .= unPgTag v]
+  toJSON v = object [fromText (demote @a :: T.Text) .= unPgTag v]
 
 instance
   (FromJSON a, Typeable a, KnownSymbol n)

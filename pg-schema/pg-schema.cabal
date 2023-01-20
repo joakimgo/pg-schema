@@ -67,6 +67,7 @@ library
     , postgresql-simple
     , bytestring
     , singletons
+    , singletons-base
     , tagged
     , template-haskell
     , hashable
@@ -98,7 +99,6 @@ library
     , RecordWildCards
     , ScopedTypeVariables
     , StandaloneDeriving
-    , StandaloneKindSignatures
     , TemplateHaskell
     , TypeOperators
     , TupleSections
@@ -107,6 +107,8 @@ library
     , TypeInType
     , TypeOperators
     , ViewPatterns
+  if impl(ghc >= 8.10.1)
+    default-extensions: StandaloneKindSignatures
 
 test-suite pg-schema-test
   type: exitcode-stdio-1.0
